@@ -1,5 +1,6 @@
 # Ignore everything in this file
 target/
+build
 .classpath
 .settings
 .project
