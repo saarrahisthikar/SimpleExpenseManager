@@ -13,33 +13,37 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.helper.DBHelper;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Account;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType;
 
+import static lk.ac.mrt.cse.dbs.simpleexpensemanager.data.helper.DBHelper.ACCOUNT_BANK;
 import static lk.ac.mrt.cse.dbs.simpleexpensemanager.data.helper.DBHelper.ACCOUNT_NO;
-import static lk.ac.mrt.cse.dbs.simpleexpensemanager.data.helper.DBHelper.ACOOUNT_BALANCE;
+import static lk.ac.mrt.cse.dbs.simpleexpensemanager.data.helper.DBHelper.ACCOUNT_BALANCE;
+import static lk.ac.mrt.cse.dbs.simpleexpensemanager.data.helper.DBHelper.ACCOUNT_BANK;
+import static lk.ac.mrt.cse.dbs.simpleexpensemanager.data.helper.DBHelper.ACCOUNT_HOLDER;
 import static lk.ac.mrt.cse.dbs.simpleexpensemanager.data.helper.DBHelper.TABLE_ACCOUNT;
 
 /**
- * This is a persistent implementation of the AccountDAO interface. SQLite has been used as the persistent provider.
- * Created by Saarrah I  Isthikar on 11/20/2016.
+ * This is a persistent implementation of the AccountDAO interface.
+ * SQLite has been used as the persistent provider.
  *
+ * Created by Saarrah I  Isthikar on 11/20/2016.
  */
 
 public class PersistentAccountDAO implements AccountDAO {
 
     private DBHelper dbHelper = null;
 
-    public PersistentAccountDAO(DBHelper dbHelper){
-        this.dbHelper=dbHelper;
+    public PersistentAccountDAO(DBHelper dbHelper) {
+        this.dbHelper = dbHelper;
     }
 
     @Override
     public List<String> getAccountNumbersList() {
         List<String> accountNumbers = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor results =  db.rawQuery( "select " + ACCOUNT_NO + " from " + DBHelper.TABLE_ACCOUNT, null );
+        Cursor results = db.rawQuery("select " + ACCOUNT_NO + " from " + DBHelper.TABLE_ACCOUNT, null);
 
         results.moveToFirst();
 
-        while(results.isAfterLast() == false){
+        while (results.isAfterLast() == false) {
             accountNumbers.add(results.getString(results.getColumnIndex(ACCOUNT_NO)));
             results.moveToNext();
         }
@@ -49,38 +53,75 @@ public class PersistentAccountDAO implements AccountDAO {
 
     @Override
     public List<Account> getAccountsList() {
-        return null;
+        List<Account> accounts= new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor results = db.rawQuery("select *" + " from " + DBHelper.TABLE_ACCOUNT, null);
+
+        results.moveToFirst();
+
+        while (results.isAfterLast() == false){
+
+            String number = results.getString(results.getColumnIndex(ACCOUNT_NO));
+            String bankName = results.getString(results.getColumnIndex(ACCOUNT_BANK));
+            String holderName = results.getString(results.getColumnIndex(ACCOUNT_HOLDER));
+            double balance = results.getDouble(results.getColumnIndex(ACCOUNT_BALANCE));
+
+            Account account = new Account(number, bankName, holderName, balance);
+
+            accounts.add(account);
+            results.moveToNext();
+        }
+        return accounts;
     }
 
     @Override
     public Account getAccount(String accountNo) throws InvalidAccountException {
-        return null;
+        Account account = null;
+
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        Cursor results = db.rawQuery("select * from " + TABLE_ACCOUNT + " where " + ACCOUNT_NO + "='" + accountNo +"'", null);
+        results.moveToFirst();
+
+        while (results.isAfterLast() == false) {
+
+            String number = results.getString(results.getColumnIndex(ACCOUNT_NO));
+            String bankName = results.getString(results.getColumnIndex(ACCOUNT_BANK));
+            String holderName = results.getString(results.getColumnIndex(ACCOUNT_HOLDER));
+            double balance = results.getDouble(results.getColumnIndex(ACCOUNT_BALANCE));
+
+            account = new Account(number, bankName, holderName, balance);
+
+            return account;
+
+        }
+
+
+        return account;
     }
 
     @Override
     public void addAccount(Account account) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put("account_no", account.getAccountNo());
-        contentValues.put("bank_name",account.getBankName());
-        contentValues.put("holder_name", account.getAccountHolderName());
-        contentValues.put("balance", account.getBalance());
-        db.insert("account", null, contentValues);
+        contentValues.put(ACCOUNT_NO, account.getAccountNo());
+        contentValues.put(ACCOUNT_BANK, account.getBankName());
+        contentValues.put(ACCOUNT_HOLDER, account.getAccountHolderName());
+        contentValues.put(ACCOUNT_BALANCE, account.getBalance());
+        db.insert(TABLE_ACCOUNT, null, contentValues);
     }
 
     @Override
     public void removeAccount(String accountNo) throws InvalidAccountException {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.delete("contacts",
-                "accountNo = ? ",
-                new String[] { accountNo });
+        db.delete(TABLE_ACCOUNT, ACCOUNT_NO +"= ? ",
+                new String[]{accountNo});
     }
 
     @Override
     public void updateBalance(String accountNo, ExpenseType expenseType, double amount) throws InvalidAccountException {
 
         Account accountInfo = getAccount(accountNo);
-        if(accountInfo==null){
+        if (accountInfo == null) {
             String msg = "Account " + accountNo + " is invalid.";
             throw new InvalidAccountException(msg);
         }
@@ -88,19 +129,15 @@ public class PersistentAccountDAO implements AccountDAO {
 
         switch (expenseType) {
             case EXPENSE:
-
-                accountInfo .setBalance(accountInfo.getBalance() - amount);
+                accountInfo.setBalance(accountInfo.getBalance() - amount);
                 break;
             case INCOME:
-                accountInfo .setBalance(accountInfo.getBalance() + amount);
+                accountInfo.setBalance(accountInfo.getBalance() + amount);
                 break;
         }
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-        String strSQL = "UPDATE " + TABLE_ACCOUNT + " SET "+ ACOOUNT_BALANCE  + "=" +accountInfo.getBalance()+" WHERE " + ACCOUNT_NO + "=" + accountNo ;
-
+        String strSQL = "UPDATE " + TABLE_ACCOUNT + " SET " + ACCOUNT_BALANCE + "=" + accountInfo.getBalance() + " WHERE " + ACCOUNT_NO + "='" + accountNo + "'";
         db.execSQL(strSQL);
-
 
     }
 }
