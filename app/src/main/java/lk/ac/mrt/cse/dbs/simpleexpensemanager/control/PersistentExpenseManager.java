@@ -17,19 +17,19 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Account;
  */
 
 public class PersistentExpenseManager extends ExpenseManager {
+    private DBHelper dbHelper=null;
 
     public PersistentExpenseManager(Context context){
-        DBHelper dbHelper =new DBHelper(context);
-        dbHelper.addTempAccount();
+        dbHelper =new DBHelper(context);
         setup();
     }
 
     @Override
     public void setup() {
-        AccountDAO accountDAO = new PersistentAccountDAO();
+        AccountDAO accountDAO = new PersistentAccountDAO(dbHelper);
         setAccountsDAO(accountDAO);
 
-        TransactionDAO transactionDAO = new PersistentTransactionDAO();
+        TransactionDAO transactionDAO = new PersistentTransactionDAO(dbHelper);
         setTransactionsDAO(transactionDAO);
 
     }

@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.TransactionDAO;
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.helper.DBHelper;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Transaction;
 
@@ -14,6 +15,12 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Transaction;
 
 public class PersistentTransactionDAO implements TransactionDAO {
 
+
+    private DBHelper dbHelper = null;
+
+    public PersistentTransactionDAO(DBHelper dbHelper){
+        this.dbHelper=dbHelper;
+    }
 
     @Override
     public void logTransaction(Date date, String accountNo, ExpenseType expenseType, double amount) {

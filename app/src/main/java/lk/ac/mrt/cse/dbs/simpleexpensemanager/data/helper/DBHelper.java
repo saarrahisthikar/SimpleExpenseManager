@@ -12,6 +12,16 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "expense_manager.db";
+    public static final String TABLE_ACCOUNT ="account";
+    public static final String TABLE_TRANSACTION = "transaction";
+
+    public static final String ACCOUNT_NO="account_no";
+    public static final String ACOOUNT_BANK= "bank_name";
+    public static final String ACOOUNT_HOLDER= "holder_name";
+    public static final String ACOOUNT_BALANCE= "balance";
+
+
+
 
 
     public DBHelper(Context context){

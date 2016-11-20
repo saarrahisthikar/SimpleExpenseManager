@@ -1,4 +1,5 @@
 # Ignore everything in this file
+app/build/
 target/
 build
 .classpath
@@ -7,3 +8,4 @@ build
 *.i??
 .idea/
 .gradle/
+local.properties
