@@ -23,7 +23,7 @@ import static lk.ac.mrt.cse.dbs.simpleexpensemanager.data.helper.DBHelper.TABLE_
 /**
  * This is a persistent implementation of the AccountDAO interface.
  * SQLite has been used as the persistent provider.
- *
+ * <p>
  * Created by Saarrah I  Isthikar on 11/20/2016.
  */
 
@@ -31,10 +31,20 @@ public class PersistentAccountDAO implements AccountDAO {
 
     private DBHelper dbHelper = null;
 
+    /**
+     * Constructs the Dao injecting SQLite DB
+     *
+     * @param dbHelper
+     */
     public PersistentAccountDAO(DBHelper dbHelper) {
         this.dbHelper = dbHelper;
     }
 
+    /**
+     * Returns all the account numbers in the account table
+     *
+     * @return
+     */
     @Override
     public List<String> getAccountNumbersList() {
         List<String> accountNumbers = new ArrayList<>();
@@ -51,15 +61,20 @@ public class PersistentAccountDAO implements AccountDAO {
 
     }
 
+    /**
+     * Returns all the records in the account database
+     *
+     * @return
+     */
     @Override
     public List<Account> getAccountsList() {
-        List<Account> accounts= new ArrayList<>();
+        List<Account> accounts = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor results = db.rawQuery("select *" + " from " + DBHelper.TABLE_ACCOUNT, null);
 
         results.moveToFirst();
 
-        while (results.isAfterLast() == false){
+        while (results.isAfterLast() == false) {
 
             String number = results.getString(results.getColumnIndex(ACCOUNT_NO));
             String bankName = results.getString(results.getColumnIndex(ACCOUNT_BANK));
@@ -74,12 +89,19 @@ public class PersistentAccountDAO implements AccountDAO {
         return accounts;
     }
 
+    /**
+     * Returns the account details ofthe particular account having the given account number
+     *
+     * @param accountNo as String
+     * @return
+     * @throws InvalidAccountException
+     */
     @Override
     public Account getAccount(String accountNo) throws InvalidAccountException {
         Account account = null;
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Cursor results = db.rawQuery("select * from " + TABLE_ACCOUNT + " where " + ACCOUNT_NO + "='" + accountNo +"'", null);
+        Cursor results = db.rawQuery("select * from " + TABLE_ACCOUNT + " where " + ACCOUNT_NO + "='" + accountNo + "'", null);
         results.moveToFirst();
 
         while (results.isAfterLast() == false) {
@@ -99,6 +121,11 @@ public class PersistentAccountDAO implements AccountDAO {
         return account;
     }
 
+    /***
+     * Adds an account to the acoount table
+     *
+     * @param account - the account to be added.
+     */
     @Override
     public void addAccount(Account account) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -110,13 +137,27 @@ public class PersistentAccountDAO implements AccountDAO {
         db.insert(TABLE_ACCOUNT, null, contentValues);
     }
 
+    /**
+     * Removes the account from the account table
+     *
+     * @param accountNo - of the account to be removed.
+     * @throws InvalidAccountException
+     */
     @Override
     public void removeAccount(String accountNo) throws InvalidAccountException {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.delete(TABLE_ACCOUNT, ACCOUNT_NO +"= ? ",
+        db.delete(TABLE_ACCOUNT, ACCOUNT_NO + "= ? ",
                 new String[]{accountNo});
     }
 
+    /**
+     * Updates the balance in the account table once a transaction is happened
+     *
+     * @param accountNo   - account number of the respective account
+     * @param expenseType - the type of the transaction
+     * @param amount      - amount involved
+     * @throws InvalidAccountException
+     */
     @Override
     public void updateBalance(String accountNo, ExpenseType expenseType, double amount) throws InvalidAccountException {
 

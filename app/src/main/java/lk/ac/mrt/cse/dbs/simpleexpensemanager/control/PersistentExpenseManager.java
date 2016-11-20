@@ -13,17 +13,27 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.impl.PersistentTransactionDAO
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Account;
 
 /**
+ * Concrete implementation of Expense manager using SQLite as the persistence provider
+ * <p>
  * Created by Saarrah I  Isthikar on 11/20/2016.
  */
 
 public class PersistentExpenseManager extends ExpenseManager {
-    private DBHelper dbHelper=null;
+    private DBHelper dbHelper = null;
 
-    public PersistentExpenseManager(Context context){
-        dbHelper =new DBHelper(context);
+    /**
+     * Constructing the persisent manager
+     *
+     * @param context
+     */
+    public PersistentExpenseManager(Context context) {
+        dbHelper = new DBHelper(context);
         setup();
     }
 
+    /**
+     * Setting up persistent implementation for DAO
+     */
     @Override
     public void setup() {
         AccountDAO accountDAO = new PersistentAccountDAO(dbHelper);
